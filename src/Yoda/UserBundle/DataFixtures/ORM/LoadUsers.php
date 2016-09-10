@@ -7,24 +7,26 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Yoda\UserBundle\Entity\User;
+use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 
-class LoadUsers implements FixtureInterface, ContainerAwareInterface {
-
+class LoadUsers implements FixtureInterface, ContainerAwareInterface, OrderedFixtureInterface
+{
     /**
      * @var ContainerInterface
      */
     private $container;
-    
+
     /**
      * {@inheritDoc}
      */
-    public function load(ObjectManager $manager) {
+    public function load(ObjectManager $manager)
+    {
         $user = new user();
         $user->setUsername('user');
         $user->setEmail('user@mail.com');
         $user->setPassword($this->encodePassword($user, 'user'));
         $manager->persist($user);
-        
+
         $admin = new user();
         $admin->setUsername('admin');
         $admin->setEmail('admin@mail.com');
@@ -35,16 +37,28 @@ class LoadUsers implements FixtureInterface, ContainerAwareInterface {
 
         $manager->flush();
     }
-    
-    private function encodePassword(User $user, $plainPassword){
+
+    private function encodePassword(User $user, $plainPassword)
+    {
         $encoder = $this->container->get('security.encoder_factory')->getEncoder($user);
-        
+
         return $encoder->encodePassword($plainPassword, $user->getSalt());
     }
 
 
-    public function setContainer(ContainerInterface $container = null){
+    // order to execute the load users and load events
+    public function setContainer(ContainerInterface $container = null)
+    {
         $this->container = $container;
     }
 
+    /**
+     * Get the order of this fixture
+     *
+     * @return integer
+     */
+    public function getOrder()
+    {
+        // TODO: Implement getOrder() method.
+    }
 }

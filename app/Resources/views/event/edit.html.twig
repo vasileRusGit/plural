@@ -6,7 +6,7 @@
     <section class="event-show event-edit">
         <header id="menu">
             <a class="link" href="{{ path('event_index') }}">&larr; back to the event list</a>
-            <a class="link" href="{{ path('event_show', {'id': event.id}) }}">show event</a>
+            <a class="link" href="{{ path('event_show', {'slug': event.slug}) }}">show event</a>
         </header>
 
         <article>
@@ -43,13 +43,14 @@
                 </dl>
 
                 {{ form_widget(edit_form) }}
-                <input type="submit" class="btn btn-primary pull-right" value="Edit" />
+
+                <input type="submit" class="btn btn-primary pull-right" value="Update">
 
                 {# the closing </form> tag #}
                 {{ form_end(edit_form) }}
-                
+
                 {{ form_start(delete_form) }}
-                <input type="submit" class="btn btn-danger" value="Delete">
+                <input type="submit" class="btn btn-danger pull-left" value="Delete">
                 {{ form_end(delete_form) }}
 
             </section>

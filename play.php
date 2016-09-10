@@ -21,14 +21,13 @@ $container->set('request', $request);
 
 //////////////////////////////////////////
 
-use Yoda\EventBundle\Entity\Event;
+use Doctrine\ORM\EntityManager;
 
-$event = new Event();
-$event->setName('Popescu');
-$event->setLocation("New York");
-$event->setTime(new DateTime('tomorrow noon'));
-$event->setDetails('Ha ha ha...');
-
+/**  @var EntityManager $em */
 $em = $container->get('doctrine')->getManager();
-$em->persist($event);
-$em->flush();
+
+$admin = $em->getRepository('UserBundle:User')->findOneByUsernameOrEmail('admin');
+
+foreach($admin->getEvents() as $event){
+    var_dump($event->getName());
+}

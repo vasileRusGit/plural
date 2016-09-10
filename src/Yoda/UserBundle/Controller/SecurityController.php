@@ -2,7 +2,7 @@
 
 namespace Yoda\UserBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Yoda\EventBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\SecurityContextInterface;
@@ -25,8 +25,7 @@ class SecurityController extends Controller {
         return $this->render('security/login.html.twig', array(
                     // last username entered by the user
                     'last_username' => $lastUsername,
-                    'error' => $error,
-                        )
+                    'error' => $error,)
         );
     }
 

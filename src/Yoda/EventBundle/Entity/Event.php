@@ -1,8 +1,10 @@
 <?php
-
 namespace Yoda\EventBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Yoda\UserBundle\Entity\User;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Event
@@ -20,27 +22,62 @@ class Event
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
-
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
     private $name;
-
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="time", type="datetime")
      */
     private $time;
-
     /**
      * @var string
      *
      * @ORM\Column(name="location", type="string", length=255)
      */
     private $location;
+    /**
+     *
+     * @ORM\ManyToOne(targetEntity="Yoda\UserBundle\Entity\User",
+     *     inversedBy="events",
+     *     cascade={"persist"})
+     *
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     */
+    private $owner;
+
+    /**
+     * @ORM\Column(name="slug", unique=true)
+     * @Gedmo\Slug(fields={"name"}, updatable=false)
+     */
+    private $slug;
+
+    /**
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(type="datetime")
+     */
+    private $updatedAt;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Yoda\UserBundle\Entity\User")
+     */
+    private $attendees;
+
+    public function __construct()
+    {
+        $this->attendees = new ArrayCollection();
+    }
+
 
     /**
      * @var string
@@ -48,7 +85,6 @@ class Event
      * @ORM\Column(name="details", type="text")
      */
     private $details;
-
 
     /**
      * Get id
@@ -58,20 +94,6 @@ class Event
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set name
-     *
-     * @param string $name
-     *
-     * @return Event
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     /**
@@ -85,16 +107,15 @@ class Event
     }
 
     /**
-     * Set time
+     * Set name
      *
-     * @param \DateTime $time
+     * @param string $name
      *
      * @return Event
      */
-    public function setTime($time)
+    public function setName($name)
     {
-        $this->time = $time;
-
+        $this->name = $name;
         return $this;
     }
 
@@ -109,16 +130,15 @@ class Event
     }
 
     /**
-     * Set location
+     * Set time
      *
-     * @param string $location
+     * @param \DateTime $time
      *
      * @return Event
      */
-    public function setLocation($location)
+    public function setTime($time)
     {
-        $this->location = $location;
-
+        $this->time = $time;
         return $this;
     }
 
@@ -133,16 +153,15 @@ class Event
     }
 
     /**
-     * Set details
+     * Set location
      *
-     * @param string $details
+     * @param string $location
      *
      * @return Event
      */
-    public function setDetails($details)
+    public function setLocation($location)
     {
-        $this->details = $details;
-
+        $this->location = $location;
         return $this;
     }
 
@@ -155,5 +174,73 @@ class Event
     {
         return $this->details;
     }
-}
 
+    /**
+     * Set details
+     *
+     * @param string $details
+     *
+     * @return Event
+     */
+    public function setDetails($details)
+    {
+        $this->details = $details;
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * @return User $owner
+     */
+    public function setOwner(User $owner)
+    {
+        $this->owner = $owner;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param mixed $slug
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getAttendees()
+    {
+        return $this->attendees;
+    }
+}

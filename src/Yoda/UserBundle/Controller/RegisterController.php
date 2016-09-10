@@ -2,9 +2,10 @@
 
 namespace Yoda\UserBundle\Controller;
 
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Yoda\UserBundle\Entity\User;
 use Yoda\UserBundle\Form\RegisterFormType;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Yoda\EventBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -48,9 +49,18 @@ class RegisterController extends Controller
 
     private function encodePassword(User $user, $plainPassword)
     {
-        $encoder = $this->container->get('security.encoder_factory')->getEncoder($user);
+        $encoder = $this->getSecurityContext() ->getEncoder($user);
 
         return $encoder->encodePassword($plainPassword, $user->getSalt());
+    }
+
+    private function authenticateUser(User $user)
+    {
+        $providerKey = 'secured_area'; //firewall name
+        $token = new UsernamePasswordToken($user, null, $providerKey, $user->getRoles());
+
+        $this->getSecurityContext()->setToken($token);
+
     }
 
 }

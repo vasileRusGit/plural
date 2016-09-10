@@ -2,11 +2,13 @@
 
 namespace Yoda\UserBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 /**
  * User
@@ -61,6 +63,16 @@ class User implements AdvancedUserInterface, \Serializable {
     private $isActive = true;
 
     /**
+     * @ORM\OneToMany(targetEntity="Yoda\EventBundle\Entity\Event", mappedBy="owner")
+     */
+    private $events;
+
+    public function __construct()
+    {
+        $this->events = new ArrayCollection();
+    }
+
+    /**
      * @var string
      * @Assert\NotBlank(message="Please enter a email...")
      * @Assert\Email
@@ -68,22 +80,6 @@ class User implements AdvancedUserInterface, \Serializable {
      */
     private $email;
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId() {
-        return $this->id;
-    }
-
-    /**
-     * Set id
-     *
-     */
-    public function setId() {
-        $this->id = $id;
-    }
 
     /**
      * Set username
@@ -209,6 +205,31 @@ class User implements AdvancedUserInterface, \Serializable {
 
     public function unserialize($serialized) {
         list($this->id, $this->username, $this->password) = unserialize($serialized);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEvents()
+    {
+        return $this->events;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
     }
 
 }
