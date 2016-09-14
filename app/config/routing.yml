@@ -1,0 +1,16 @@
+event:
+    resource: "@EventBundle/Resources/config/routing.yml"
+    prefix:   /
+    
+post:
+    resource: "@EventBundle/Controller/ReportController.php"
+    type: annotation
+
+user_controller:
+    resource: "@UserBundle/Controller"
+    prefix:   /
+    type:     annotation
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation

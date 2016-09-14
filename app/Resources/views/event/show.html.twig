@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title "Events " %}
+
+    {% block body %}
+
+        <section class="event-show">
+            <header id="menu">
+                <a class="link" href="{{ path('event_index') }}">&larr; back to the events list</a>
+            </header>
+
+            <article>
+                <header class="map-container">
+                    <img src="http://maps.googleapis.com/maps/api/staticmap?center={{ event.location | url_encode }}&markers=color:red%7Ccolor:red%7C{{ event.location | url_encode }}&zoom=14&size=300x300&maptype=roadmap&sensor=false" />
+                </header>
+                <section>
+                    <h1>
+                        {{ event.name }}
+                        {% if app.user == event.owner %}
+                            <a class="btn btn-warning pull-right" href="{{ path('event_edit', {'id': event.id}) }}">edit</a>
+                        {% endif %}
+                    </h1>
+
+                    <dl>
+                        <dt>where:</dt>
+                        <dd>{{ event.location }}</dd>
+
+                        <dt>host:</dt>
+                        <dd>{{ event.owner.username }}</dd>
+
+                        <dt>when:</dt>
+                        <dd>{{ event.time | date('g:ia / l M j, Y') }}</dd>
+
+                        <dt>what:</dt>
+                        <dd>{{ event.details }}</dd>
+
+                        <dt>who:</dt>
+                        <dd>
+                            {{ event.attendees|length }} attending!
+
+                            <ul class="users">
+                                {% for attendee in event.attendees %}
+                                    {{ attendee.username }}
+                                {%else%}
+                                    <li>nobody yet!</li>
+                                    {%endfor%}
+                            </ul>
+
+                            {% if event.hasAttendee(app.user) %}
+                                <a href="{{path('event_unattend', {id: event.id}) }}" class="btn btn-warning btn-xs js-attend-toggle">I can't go anymore!</a>
+                            {% else %}
+                                <a href="{{path('event_attend', {id: event.id}) }}" class="btn btn-success btn-xs js-attend-toggle">I totaly want to go!</a>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </section>
+            </article>
+        </section>
+    {% endblock %}
+
+    {% block javascripts %}
+        {{ parent() }}
+
+        <script>
+            $(document).ready(function () {
+                $('.js-attend-toggle').on('click', function (e) {
+                    // prevents the browser from "following" the link
+                    e.preventDefault();
+
+                    var $anchor = $(this);
+                    var url = $(this).attr('href') + '.json';
+
+                    $.post(url, null, function (data) {
+                        if (data.attending) {
+                            var message = 'See you there!';
+                        } else {
+                            var message = 'We\'ll miss you!';
+                        }
+
+                        $anchor.after('<span class="label label-default">&#10004; ' + message + '</span>');
+                        $anchor.hide();
+                    });
+                });
+            });
+        </script>
+    {% endblock %}

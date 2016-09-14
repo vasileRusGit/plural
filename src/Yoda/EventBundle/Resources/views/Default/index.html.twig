@@ -1,0 +1,11 @@
+{% extends "::base.html.twig" %}
+
+{% block  title 'Event' %}
+
+    {% block body %}
+        {% for i in 1..10 %}
+            Hello <strong>{{ name | upper}}</strong>! {{ i }}
+        {% endfor %}
+
+
+    {% endblock %}
