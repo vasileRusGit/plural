@@ -37,12 +37,56 @@
 
                     <dt>who:</dt>
                     <dd>
+                        {# attendees #}
+                        {{ event.attendees | length }} attending!
+
                         <ul class="users">
-                            <li>nobody yet!</li>
+                            {% for attendee in event.attendees %}
+                                {{ attendee }}
+                            {% else %}
+                                <li>We're cool!</li>
+                            {% endfor %}
                         </ul>
+
+                        {% if event.hasAttendee(app.user) %}
+                            <a href="{{ path('event_unattend' , {id: event.id}) }}"
+                               class="btn btn-danger btn-xs js-attend-toggle">I change my mind!</a>
+                        {% else %}
+                            <a href="{{ path('event_attend' , {id: event.id}) }}"
+                               class="btn btn-success btn-xs js-attend-toggle">I totaly want to go!</a>
+                        {% endif %}
+
                     </dd>
                 </dl>
             </section>
         </article>
     </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $(document).ready(function () {
+            $('.js-attend-toggle').on('click', function (e) {
+                // prevents the browser from "following" the link
+                e.preventDefault();
+
+                var $anchor = $(this);
+                var url = $(this).attr('href') + '.json';
+
+                $.post(url, null, function (data) {
+                    if (data.attending) {
+                        var message = 'See you there!';
+                    } else {
+                        var message = 'We\'ll miss you!';
+                    }
+
+                    $anchor.after('<span class="label label-default">&#10004; ' + message + '</span>');
+                    $anchor.hide();
+                });
+            });
+        });
+    </script>
+
 {% endblock %}

@@ -1,6 +1,10 @@
 <?php
+
 namespace Yoda\EventBundle\Controller;
 
+use Symfony\Component\BrowserKit\Response;
+use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Yoda\EventBundle\Entity\Event;
@@ -22,11 +26,11 @@ class EventController extends Controller
         $em = $this->getDoctrine()->getManager();
         $events = $em->getRepository('EventBundle:Event')->getUpcomingEvents();
 
-
         return $this->render('event/index.html.twig', array(
             'events' => $events,
         ));
     }
+
 
     /**
      * Creates a new Event event.
@@ -59,7 +63,12 @@ class EventController extends Controller
         ));
     }
 
-
+    public function enforceUserSecurity()
+    {
+        if (!$this->getSecurityContext()->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException('Need ROLE_USER!');
+        }
+    }
 
     /**
      * Finds and displays a Event entity.
@@ -170,6 +179,8 @@ class EventController extends Controller
         ));
     }
 
+    // attend and unattend
+
     /**
      * Deletes a Event event.
      *
@@ -197,12 +208,42 @@ class EventController extends Controller
         return $this->redirect($this->generateUrl('event_index'));
     }
 
-
-    public function enforceUserSecurity()
+    public function attendAction($id, $format)
     {
-        if (!$this->getSecurityContext()->isGranted('ROLE_USER')) {
-            throw new AccessDeniedException('Need ROLE_USER!');
+        $em = $this->getDoctrine()->getManager();
+        $event = $em->getRepository('EventBundle:Event')->find($id);
+
+        if (!$event) {
+            throw new Exception("Your event was not foind!");
         }
+
+        if (!$event->hasAttendee($this->getUser())) {
+            $event->getAttendees()->add($this->getUser());
+        }
+
+        $em->persist($event);
+        $em->flush();
+
+        return $this->createAttendingRespone($event, $format);
+    }
+
+    public function unattendAction($id, $format)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $event = $em->getRepository('EventBundle:Event')->find($id);
+
+        if (!$event) {
+            throw new Exception("Your event was not foind!");
+        }
+
+        if ($event->hasAttendee($this->getUser())) {
+            $event->getAttendees()->removeElement($this->getUser());
+        }
+
+        $em->persist($event);
+        $em->flush();
+
+        return $this->createAttendingRespone($event, $format);
     }
 
     public function enforceAdminUserSecurity()
@@ -210,6 +251,21 @@ class EventController extends Controller
         if (!$this->getSecurityContext()->isGranted('ROLE_ADMIN')) {
             throw new AccessDeniedException('Need ROLE_ADMIN!');
         }
+    }
+
+    private function createAttendingRespone(Event $event, $format)
+    {
+        if ($format === "json") {
+            $data = array('attending' => $event->hasAttendee($this->getUser()));
+
+            $response = new JsonResponse($data);
+
+            return $response;
+        }
+
+        $url = $this->generateUrl('event_show', array('slug' => $event->getSlug()));
+
+        return $this->redirect($url);
     }
 
 

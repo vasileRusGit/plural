@@ -70,6 +70,7 @@ class Event
 
     /**
      * @ORM\ManyToMany(targetEntity="Yoda\UserBundle\Entity\User")
+     * @ORM\JoinTable(joinColumns={@ORM\JoinColumn(onDelete="CASCADE")}, inverseJoinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
      */
     private $attendees;
 
@@ -242,5 +243,10 @@ class Event
     public function getAttendees()
     {
         return $this->attendees;
+    }
+
+    public function hasAttendee(User $user)
+    {
+        return $this->getAttendees()->contains($user);
     }
 }
